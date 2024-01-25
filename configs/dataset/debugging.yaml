@@ -1,0 +1,5 @@
+# @package _group_
+
+name: debugging
+path: /is/cluster/scratch/ssanyal/video_gan/fashion_videos/ffhq_X_celebv_hq_debug
+fps: 30

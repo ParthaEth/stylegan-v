@@ -4,6 +4,10 @@ It submits a slurm job(s) with the given hyperparams which will then execute `sl
 This is the main entry-point
 """
 
+import sys
+sys.path.append('../../')
+sys.path.append('.')
+
 import os
 import subprocess
 import re
@@ -54,7 +58,7 @@ def main(cfg: DictConfig):
             cfg.env.symlinks_to_create,
             quiet=quiet,
             ignore_uncommited_changes=cfg.get('ignore_uncommited_changes', False),
-            overwrite=cfg.get('overwrite', False))
+            overwrite=True)
 
         with open(training_cmd_save_path, 'w') as f:
             f.write(training_cmd + '\n')

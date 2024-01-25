@@ -192,7 +192,7 @@ def calc_metrics(ctx, network_pkl, networks_dir, metrics, data, mirror, gpus, cf
             mapping_kwargs=dnnlib.EasyDict(num_layers=G.cfg.get('mapping_net_n_layers', 2), cfg=G.cfg),
             synthesis_kwargs=dnnlib.EasyDict(
                 channel_base=int(G.cfg.get('fmaps', 0.5) * 32768),
-                channel_max=G.cfg.get('channel_max', 512),
+                channel_max=G.cfg.get('channel_max', 1024),
                 num_fp16_res=4,
                 conv_clamp=256,
             ),
