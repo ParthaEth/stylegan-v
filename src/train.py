@@ -18,6 +18,7 @@ import re
 import json
 import tempfile
 import torch
+# torch.use_deterministic_algorithms(True)
 import gc
 from omegaconf import OmegaConf, DictConfig
 
@@ -61,8 +62,8 @@ def process_hyperparams(cfg: DictConfig):
 
     c = cfg.training
     assert isinstance(c.gpus, int)
-    if not (c.gpus >= 1 and c.gpus & (c.gpus - 1) == 0):
-        raise UserError('`gpus` must be a power of two')
+    # if not (c.gpus >= 1 and c.gpus & (c.gpus - 1) == 0):
+    #     raise UserError('`gpus` must be a power of two')
     args.num_gpus = c.gpus
 
     if c.snap is None:

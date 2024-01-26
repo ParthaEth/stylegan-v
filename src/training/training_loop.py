@@ -388,6 +388,7 @@ def training_loop(
                     if param.grad is not None:
                         misc.nan_to_num(param.grad, nan=0, posinf=1e5, neginf=-1e5, out=param.grad)
                 phase.opt.step()
+            misc.sync_mdl_params(phase.module)
             if phase.end_event is not None:
                 phase.end_event.record(torch.cuda.current_stream(device))
                 phase.end_event_recorded = True
@@ -488,7 +489,7 @@ def training_loop(
         ]
         if (network_snapshot_ticks is not None) and (done or cur_tick % network_snapshot_ticks == 0):
             snapshot_data = dict(training_set_kwargs=dict(training_set_kwargs))
-            DDP_CONSISTENCY_IGNORE_REGEX = r'.*\.(w_avg|p|rnn\..*|embeds.*\.weight|num_batches_tracked|running_mean|running_var)'
+            DDP_CONSISTENCY_IGNORE_REGEX = r'.*\.(w_avg|p|rnn\..*|embeds.*\.weight|num_batches_tracked|running_mean|running_var|x_avg|noise_const)'
             for name, module in snapshot_modules:
                 if module is not None:
                     if isinstance(module, torch.nn.Module):
