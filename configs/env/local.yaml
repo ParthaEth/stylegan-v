@@ -2,4 +2,4 @@
 
 python_bin: python
 project_path: ${hydra:runtime.cwd}
-symlink_output: /is/cluster/fast/pghosh/ouputs/video_gan_runs/styleGAN-V/original
+symlink_output: /is/cluster/fast/pghosh/ouputs/video_gan_runs/styleGAN-V/${dataset.name}

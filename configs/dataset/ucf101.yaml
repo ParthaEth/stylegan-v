@@ -1,6 +1,6 @@
 # @package _group_
 
-name: ucf101_${dataset.resolution}
+name: ucf101
 resolution: 256
-fps: 25
-# c_dim: 101
+fps: 30
+path: /is/cluster/scratch/ssanyal/video_gan/fashion_videos/UCF101

@@ -7,6 +7,8 @@ generator:
   c_dim: ${dataset.c_dim}
   input: {type: "const"}
   motion: {time_enc: {}}
+  channel_base: 32768
+  channel_max: 512
 
 discriminator:
   source: networks # TODO: rename into stylegan2?

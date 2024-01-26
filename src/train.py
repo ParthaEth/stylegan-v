@@ -164,11 +164,14 @@ def process_hyperparams(cfg: DictConfig):
 
     args.G_kwargs = dnnlib.EasyDict(
         class_name=f'training.{cfg.model.generator.source}.Generator',
-        w_dim=cfg.model.generator.w_dim, mapping_kwargs=dnnlib.EasyDict(), synthesis_kwargs=dnnlib.EasyDict())
-    args.D_kwargs = dnnlib.EasyDict(class_name=f'training.{cfg.model.discriminator.source}.Discriminator', block_kwargs=dnnlib.EasyDict(), mapping_kwargs=dnnlib.EasyDict(), epilogue_kwargs=dnnlib.EasyDict())
-    args.G_kwargs.synthesis_kwargs.channel_base = int(cfg.model.generator.get('fmaps', spec.fmaps) * 32768)
+        w_dim=cfg.model.generator.w_dim, mapping_kwargs=dnnlib.EasyDict(),
+        synthesis_kwargs=dnnlib.EasyDict())
+    args.D_kwargs = dnnlib.EasyDict(class_name=f'training.{cfg.model.discriminator.source}.Discriminator',
+                                    block_kwargs=dnnlib.EasyDict(), mapping_kwargs=dnnlib.EasyDict(),
+                                    epilogue_kwargs=dnnlib.EasyDict())
+    args.G_kwargs.synthesis_kwargs.channel_base = int(cfg.model.generator.channel_base)
     args.D_kwargs.channel_base = int(cfg.model.discriminator.get('fmaps', spec.fmaps) * 32768)
-    args.G_kwargs.synthesis_kwargs.channel_max = cfg.model.generator.get('channel_max', 512)
+    args.G_kwargs.synthesis_kwargs.channel_max = int(cfg.model.generator.channel_max)
     args.D_kwargs.channel_max = cfg.model.discriminator.get('channel_max', 512)
     args.G_kwargs.mapping_kwargs.num_layers = cfg.model.generator.get('mapping_net_n_layers', spec.map)
     args.G_kwargs.mapping_kwargs.cfg = cfg.model.generator

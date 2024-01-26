@@ -1,0 +1,5 @@
+# @package _group_
+
+name: fashion_videos
+path: /is/cluster/scratch/ssanyal/video_gan/fashion_videos/fashion_video_bdmm_all
+fps: 30
