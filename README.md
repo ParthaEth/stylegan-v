@@ -63,7 +63,7 @@ The `fps` parameter is needed for visualizations purposes only, videos typically
 ### Training StyleGAN-V
 To train on FaceForensics 256x256, run:
 ```
-python src/infra/launch.py hydra.run.dir=. exp_suffix=my_experiment_name env=local dataset=ffs dataset.resolution=256 num_gpus=4
+python src/infra/launch.py hydra.run.dir=. exp_suffix=my_experiment_name env=local dataset=ffs dataset.resolution=256 num_gpus=4 hydra.verbose=[]
 ```
 
 To train on SkyTimelapse 256x256, run:

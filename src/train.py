@@ -22,8 +22,8 @@ import gc
 from omegaconf import OmegaConf, DictConfig
 
 from src import dnnlib
-from training import training_loop
-from metrics import metric_main
+from src.training import training_loop
+from src.metrics import metric_main
 from src.torch_utils import training_stats
 from src.torch_utils import custom_ops
 
