@@ -12,6 +12,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 from omegaconf import OmegaConf
+from src.training.stylegan_t import Generator
 
 import legacy
 from src.training.logging import generate_videos, save_video_frames_as_mp4, save_video_frames_as_frames_parallel
@@ -83,7 +84,13 @@ def generate(
     print('Loading networks from "%s"...' % network_pkl)
     device = torch.device('cuda')
     with dnnlib.util.open_url(network_pkl) as f:
-        G = legacy.load_network_pkl(f)['G_ema'].to(device).eval() # type: ignore
+        G = legacy.load_network_pkl(f)['G_ema'].to(device).eval()  # type: ignore
+        # # import ipdb; ipdb.set_trace()
+        # G = Generator(c_dim=G_ema.c_dim, cfg=G_ema.cfg, w_dim=G_ema.w_dim, img_resolution=G_ema.img_resolution,
+        #               img_channels=G_ema.img_channels).to(device).eval()
+        #
+        # G.load_state_dict(G_ema.state_dict())
+
 
     os.makedirs(outdir, exist_ok=True)
 
@@ -91,7 +98,7 @@ def generate(
     np.random.seed(seed)
     torch.manual_seed(seed)
 
-    all_z = torch.randn(num_videos, G.z_dim, device=device) # [curr_batch_size, z_dim]
+    all_z = torch.randn(num_videos, G.z_dim, device=device)  # [curr_batch_size, z_dim]
 
     if dataset_path and G.c_dim > 0:
         hydra_cfg_path = hydra_cfg_path or os.path.join(networks_dir, '..', "experiment_config.yaml")
@@ -128,9 +135,11 @@ def generate(
         z = all_z[batch_idx * batch_size:batch_idx * batch_size + curr_batch_size] # [curr_batch_size, z_dim]
         c = all_c[batch_idx * batch_size:batch_idx * batch_size + curr_batch_size] # [curr_batch_size, c_dim]
 
-        videos = generate_videos(
+        videos, flop_per_vid = generate_videos(
             G, z, c, ts[:curr_batch_size], motion_z=motion_z, noise_mode=noise_mode,
-            truncation_psi=truncation_psi, as_grids=as_grids, batch_size_num_frames=128)
+            truncation_psi=truncation_psi, as_grids=as_grids, batch_size_num_frames=128, count_flops=True)
+
+        print(f'flops per vid is :{flop_per_vid}')
 
         if as_grids:
             videos = [videos]

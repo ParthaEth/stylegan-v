@@ -9,14 +9,17 @@ import numpy as np
 import cv2
 from tqdm import tqdm
 from torchvision import utils
+from fvcore.nn import FlopCountAnalysis
 import torchvision.transforms.functional as TVF
+from torch import nn
 
 #----------------------------------------------------------------------------
 
 @torch.no_grad()
 def generate_videos(
     G: Callable, z: Tensor, c: Tensor, ts: Tensor, motion_z: Optional[Tensor]=None,
-    noise_mode='const', truncation_psi=1.0, verbose: bool=False, as_grids: bool=False, batch_size_num_frames: int=100) -> Tensor:
+    noise_mode='const', truncation_psi=1.0, verbose: bool=False, as_grids: bool=False, batch_size_num_frames: int=100,
+    count_flops=False) -> Tensor:
 
     assert len(ts) == len(z) == len(c), f"Wrong shape: {ts.shape}, {z.shape}, {c.shape}"
     assert ts.ndim == 2, f"Wrong shape: {ts.shape}"
@@ -37,6 +40,8 @@ def generate_videos(
     if motion_z is None and not G.synthesis.motion_encoder is None:
         motion_z = G.synthesis.motion_encoder(c=c, t=ts)['motion_z'] # [...any...]
 
+    flops_per_vid = None
+
     for video_idx in iters:
         curr_video = []
 
@@ -55,6 +60,9 @@ def generate_videos(
                     t=curr_ts,
                     motion_z=curr_motion_z,
                     noise_mode=noise_mode) # [1 * curr_num_frames, 3, h, w]
+                if count_flops and flops_per_vid is None:
+                    flops_per_vid = FlopCountAnalysis(G.synthesis, (curr_w, curr_c, curr_ts,
+                                                                    curr_motion_z, noise_mode)).total()
             else:
                 out = G(
                     z=curr_z,
@@ -62,7 +70,23 @@ def generate_videos(
                     t=curr_ts,
                     motion_z=curr_motion_z,
                     truncation_psi=truncation_psi,
-                    noise_mode=noise_mode) # [1 * curr_num_frames, 3, h, w]
+                    noise_mode=noise_mode)  # [1 * curr_num_frames, 3, h, w]
+
+                class GWrapper(nn.Module):
+                    def __init__(self, G):
+                        super(GWrapper, self).__init__()
+                        self.G = G
+
+                    def forward(self, curr_z, curr_c, curr_ts, curr_motion_z, truncation_psi, noise_mode):
+                        return self.G(z=curr_z, c=curr_c, t=curr_ts, motion_z=curr_motion_z,
+                                      truncation_psi=truncation_psi, noise_mode=noise_mode)
+
+                if count_flops and flops_per_vid is None:
+                    g_wrapper = GWrapper(G)
+                    flops_per_vid = \
+                        FlopCountAnalysis(g_wrapper.to('cpu'),
+                                          (curr_z.to('cpu'), curr_c.to('cpu'), curr_ts.to('cpu'),
+                                           curr_motion_z.to('cpu'), truncation_psi, noise_mode)).total()
 
             out = (out * 0.5 + 0.5).clamp(0, 1).cpu() # [1 * curr_num_frames, 3, h, w]
             curr_video.append(out)
@@ -75,9 +99,9 @@ def generate_videos(
         frame_grids = videos.permute(1, 0, 2, 3, 4) # [video_len, len(z), c, h, w]
         frame_grids = [utils.make_grid(fs, nrow=int(np.sqrt(len(z)))) for fs in frame_grids] # [video_len, 3, grid_h, grid_w]
 
-        return torch.stack(frame_grids)
+        return torch.stack(frame_grids), flops_per_vid
     else:
-        return videos
+        return videos, flops_per_vid
 
 #----------------------------------------------------------------------------
 
