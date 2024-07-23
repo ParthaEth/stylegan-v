@@ -9,7 +9,7 @@ generator:
   w_dim: 512
   z_dim: 512
   conditional: false
-  channel_base: 65536
+  channel_base: 32768
   channel_max: 1024
 
   # Motion mapping network hyperparameters

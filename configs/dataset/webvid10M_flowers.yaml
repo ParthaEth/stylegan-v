@@ -1,0 +1,5 @@
+# @package _group_
+
+name: talking_faces
+path: /is/cluster/scratch/ssanyal/video_gan/fashion_videos/webvid10M_flowers
+fps: 30

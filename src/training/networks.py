@@ -208,7 +208,7 @@ class SynthesisBlock(torch.nn.Module):
             self.num_conv += 1
             conv1_in_channels = out_channels
 
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
 
         self.conv1 = SynthesisLayer(conv1_in_channels, out_channels, w_dim=w_dim, resolution=self.resolution,
             conv_clamp=conv_clamp, channels_last=self.channels_last, kernel_size=3, cfg=cfg, **layer_kwargs)

@@ -1,0 +1,5 @@
+# @package _group_
+
+name: talking_faces
+path: /is/cluster/scratch/ssanyal/video_gan/fashion_videos/flower_train_vids_cnst_loc_watermark_256X256X32_crops
+fps: 30

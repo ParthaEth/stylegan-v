@@ -183,26 +183,28 @@ def calc_metrics(ctx, network_pkl, networks_dir, metrics, data, mirror, gpus, cf
     with dnnlib.util.open_url(network_pkl, verbose=args.verbose) as f:
         network_dict = legacy.load_network_pkl(f)
         args.G = network_dict['G_ema'] # subclass of torch.nn.Module
+        args.G.eval()
 
-        from src.training.networks import Generator
-        G = args.G
-        G.cfg.z_dim = G.z_dim
-        G_new = Generator(
-            w_dim=G.cfg.w_dim,
-            mapping_kwargs=dnnlib.EasyDict(num_layers=G.cfg.get('mapping_net_n_layers', 2), cfg=G.cfg),
-            synthesis_kwargs=dnnlib.EasyDict(
-                channel_base=int(G.cfg.get('fmaps', 0.5) * 32768),
-                channel_max=G.cfg.get('channel_max', 1024),
-                num_fp16_res=4,
-                conv_clamp=256,
-            ),
-            cfg=G.cfg,
-            img_resolution=256,
-            img_channels=3,
-            c_dim=G.cfg.c_dim,
-        ).eval()
-        G_new.load_state_dict(G.state_dict())
-        args.G = G_new
+        # # from src.training.networks import Generator
+        # from src.training.stylegan_t import Generator
+        # G = args.G
+        # G.cfg.z_dim = G.z_dim
+        # G_new = Generator(
+        #     w_dim=G.cfg.w_dim,
+        #     mapping_kwargs=dnnlib.EasyDict(num_layers=G.cfg.get('mapping_net_n_layers', 2), cfg=G.cfg),
+        #     synthesis_kwargs=dnnlib.EasyDict(
+        #         channel_base=int(G.cfg.get('fmaps', 0.5) * 32768),
+        #         channel_max=G.cfg.get('channel_max', 1024),
+        #         num_fp16_res=4,
+        #         conv_clamp=256,
+        #     ),
+        #     cfg=G.cfg,
+        #     img_resolution=256,
+        #     img_channels=3,
+        #     c_dim=G.cfg.c_dim,
+        # ).eval()
+        # G_new.load_state_dict(G.state_dict())
+        # args.G = G_new
 
     # Initialize dataset options.
     if data is not None:
